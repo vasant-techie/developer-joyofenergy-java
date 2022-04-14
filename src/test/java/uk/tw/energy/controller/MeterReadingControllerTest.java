@@ -8,10 +8,9 @@ import uk.tw.energy.domain.ElectricityReading;
 import uk.tw.energy.domain.MeterReadings;
 import uk.tw.energy.service.MeterReadingService;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -84,5 +83,11 @@ public class MeterReadingControllerTest {
     @Test
     public void givenMeterIdThatIsNotRecognisedShouldReturnNotFound() {
         assertThat(meterReadingController.readReadings(SMART_METER_ID).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void givenMeterIdRecognisedShouldReturn() {
+        meterReadingService.storeReadings("00001", Arrays.asList(new ElectricityReading(Instant.now(), BigDecimal.ONE)));
+        assertThat(meterReadingController.readReadings("00001").getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
