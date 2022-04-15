@@ -1,10 +1,16 @@
 package uk.tw.energy.domain;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 public class MeterReadings {
 
-    private List<ElectricityReading> electricityReadings;
+    @NotEmpty (message = "electricityReadings value is empty")
+    private List<@Valid ElectricityReading> electricityReadings;
+
+    @NotBlank (message = "smartMeterId value is blank")
     private String smartMeterId;
 
     public MeterReadings(String smartMeterId, List<ElectricityReading> electricityReadings) {
@@ -19,4 +25,5 @@ public class MeterReadings {
     public String getSmartMeterId() {
         return smartMeterId;
     }
+
 }

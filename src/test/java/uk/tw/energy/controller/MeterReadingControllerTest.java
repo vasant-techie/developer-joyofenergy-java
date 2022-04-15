@@ -8,9 +8,14 @@ import uk.tw.energy.domain.ElectricityReading;
 import uk.tw.energy.domain.MeterReadings;
 import uk.tw.energy.service.MeterReadingService;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -20,28 +25,40 @@ public class MeterReadingControllerTest {
     private MeterReadingController meterReadingController;
     private MeterReadingService meterReadingService;
 
+    private Validator validator;
+
     @BeforeEach
     public void setUp() {
         this.meterReadingService = new MeterReadingService(new HashMap<>());
         this.meterReadingController = new MeterReadingController(meterReadingService);
+        ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
+        this.validator = vf.getValidator();
     }
 
     @Test
     public void givenNoMeterIdIsSuppliedWhenStoringShouldReturnErrorResponse() {
         MeterReadings meterReadings = new MeterReadings(null, Collections.emptyList());
-        assertThat(meterReadingController.storeReadings(meterReadings).getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        Set<ConstraintViolation<MeterReadings>> result = this.validator.validate(meterReadings);
+        assertThat(result.size()).isEqualTo(2);
+        ConstraintViolation<MeterReadings> smartMeterIdPropViolation = result.stream().filter(x -> x.getPropertyPath().toString().equalsIgnoreCase("smartMeterId")).collect(Collectors.toList()).get(0);
+        assertThat(smartMeterIdPropViolation.getMessage()).isEqualToIgnoringCase("smartMeterId value is blank");
     }
 
     @Test
     public void givenEmptyMeterReadingShouldReturnErrorResponse() {
         MeterReadings meterReadings = new MeterReadings(SMART_METER_ID, Collections.emptyList());
-        assertThat(meterReadingController.storeReadings(meterReadings).getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        Set<ConstraintViolation<MeterReadings>> violations = this.validator.validate(meterReadings);
+        assertThat(violations.size()).isEqualTo(1);
+        ConstraintViolation<MeterReadings> violation = violations.stream().findFirst().get();
+        assertThat(violation.getMessage()).isEqualToIgnoringCase("electricityReadings value is empty");
     }
 
     @Test
     public void givenNullReadingsAreSuppliedWhenStoringShouldReturnErrorResponse() {
         MeterReadings meterReadings = new MeterReadings(SMART_METER_ID, null);
-        assertThat(meterReadingController.storeReadings(meterReadings).getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        Set<ConstraintViolation<MeterReadings>> result = this.validator.validate(meterReadings);
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.stream().findFirst().get().getMessage()).isEqualToIgnoringCase("electricityReadings value is empty");
     }
 
     @Test
