@@ -19,7 +19,7 @@ public class MeterReadingService {
     }
 
     public void storeReadings(String smartMeterId, List<ElectricityReading> electricityReadings) {
-        meterAssociatedReadings.putIfAbsent(smartMeterId, new ArrayList<>());
-        meterAssociatedReadings.get(smartMeterId).addAll(electricityReadings);
+        List<ElectricityReading> electricityReadingsList = meterAssociatedReadings.computeIfAbsent(smartMeterId, k -> new ArrayList<>());
+        electricityReadingsList.addAll(electricityReadings);
     }
 }
