@@ -3,7 +3,7 @@ package uk.tw.energy.service;
 import org.springframework.stereotype.Service;
 import uk.tw.energy.domain.ElectricityReading;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,9 +22,7 @@ public class MeterReadingService {
     }
 
     public void storeReadings(String smartMeterId, List<ElectricityReading> electricityReadings) {
-        if (!meterAssociatedReadings.containsKey(smartMeterId)) {
-            meterAssociatedReadings.put(smartMeterId, new ArrayList<>());
-        }
+        meterAssociatedReadings.putIfAbsent(smartMeterId, Collections.emptyList());
         meterAssociatedReadings.get(smartMeterId).addAll(electricityReadings);
     }
 }
