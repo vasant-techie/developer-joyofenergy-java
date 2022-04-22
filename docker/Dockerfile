@@ -15,10 +15,10 @@ WORKDIR /build
 
 # Build dependency offline to streamline build
 COPY build.gralde .
-RUN gradle --offline
+RUN gradlew --offline
 
 COPY src src
-RUN gradle build
+RUN gradlew build
 
 FROM public.ecr.aws/docker/library/openjdk:11
 COPY --from=0 /build/build/libs/joi-energy.jar /app/target/joi-energy.jar
