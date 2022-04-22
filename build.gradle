@@ -4,9 +4,12 @@ plugins {
     id 'eclipse'
     id 'org.springframework.boot' version '2.6.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'jacoco'
 }
 
 ext['log4j2.version'] = "2.17.0"         // mitigates various vulnerabilities in log4j
+
+project.archivesBaseName="joi-energy" //NOTE: To ensure the jar name is joi-energy.jar
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -14,7 +17,7 @@ java {
 }
 
 repositories {
-    mavenCentral()
+    mavenCentral() //TODO: Private organization specific artifact repository is recommended (Ex: jFrog Artifact repo)
 }
 
 sourceSets {
@@ -58,6 +61,7 @@ task functionalTest(type: Test) {
 dependencies {
     /* Spring Boot */
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
@@ -73,4 +77,14 @@ test {
 
 check {
     dependsOn functionalTest
+}
+
+//TODO: To ensure running task::test also run Code Coverage
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+//TODO: To ensure task::test is invoked before running Code Coverage
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
 }
