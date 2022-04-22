@@ -18,10 +18,10 @@ COPY pom.xml .
 RUN mvn dependency:go-offline
 
 COPY src src
-RUN mvn package -Dmaven.test.skip=true
+RUN gradle build
 
 FROM public.ecr.aws/docker/library/openjdk:11
-COPY --from=0 /build/target/calc-rest-api-1.0.jar /app/target/calc-rest-api-1.0.jar
+COPY --from=0 /build/build/libs/joi-energy.jar /app/target/joi-energy.jar
 
-EXPOSE 8081
-ENTRYPOINT [ "java", "-jar", "/app/target/calc-rest-api-1.0.jar", "--server.port=8081" ]
+EXPOSE 8080
+ENTRYPOINT [ "java", "-jar", "/app/target/calc-rest-api-1.0.jar", "--server.port=8080" ]
