@@ -24,4 +24,4 @@ FROM public.ecr.aws/docker/library/openjdk:11
 COPY --from=0 /build/build/libs/joi-energy.jar /app/target/joi-energy.jar
 
 EXPOSE 8080
-ENTRYPOINT [ "java", "-jar", "/app/target/calc-rest-api-1.0.jar", "--server.port=8080" ]
+ENTRYPOINT [ "java", "-jar", "/app/target/joi-energy.jar", "--server.port=8080" ]
