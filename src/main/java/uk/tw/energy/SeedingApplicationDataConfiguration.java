@@ -2,6 +2,8 @@ package uk.tw.energy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -25,8 +27,11 @@ public class SeedingApplicationDataConfiguration {
     private static final String RENEWABLES_PRICE_PLAN_ID = "price-plan-1";
     private static final String STANDARD_PRICE_PLAN_ID = "price-plan-2";
 
+    private static final Logger logger = LogManager.getLogger(SeedingApplicationDataConfiguration.class);
+
     @Bean
     public List<PricePlan> pricePlans() {
+        logger.debug("Initializing PricePlan bean..");
         final List<PricePlan> pricePlans = new ArrayList<>();
         pricePlans.add(new PricePlan(MOST_EVIL_PRICE_PLAN_ID, "Dr Evil's Dark Energy", BigDecimal.TEN, emptyList()));
         pricePlans.add(new PricePlan(RENEWABLES_PRICE_PLAN_ID, "The Green Eco", BigDecimal.valueOf(2), emptyList()));
@@ -36,6 +41,7 @@ public class SeedingApplicationDataConfiguration {
 
     @Bean
     public Map<String, List<ElectricityReading>> perMeterElectricityReadings() {
+        logger.debug("Initializing perMeterElectricityReadings bean..");
         final Map<String, List<ElectricityReading>> readings = new HashMap<>();
         final ElectricityReadingsGenerator electricityReadingsGenerator = new ElectricityReadingsGenerator();
         smartMeterToPricePlanAccounts()
@@ -46,6 +52,8 @@ public class SeedingApplicationDataConfiguration {
 
     @Bean
     public Map<String, String> smartMeterToPricePlanAccounts() {
+        logger.debug("Initializing smartMeterToPricePlanAccounts bean..");
+
         final Map<String, String> smartMeterToPricePlanAccounts = new HashMap<>();
         smartMeterToPricePlanAccounts.put("smart-meter-0", MOST_EVIL_PRICE_PLAN_ID);
         smartMeterToPricePlanAccounts.put("smart-meter-1", RENEWABLES_PRICE_PLAN_ID);
@@ -58,6 +66,8 @@ public class SeedingApplicationDataConfiguration {
     @Bean
     @Primary
     public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
+        logger.debug("Initializing objectMapper bean..");
+
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return objectMapper;

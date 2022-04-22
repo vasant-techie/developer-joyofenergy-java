@@ -1,5 +1,7 @@
 package uk.tw.energy.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,18 +20,22 @@ public class MeterReadingController {
 
     private final MeterReadingService meterReadingService;
 
+    private static final Logger logger = LogManager.getLogger(MeterReadingController.class);
+
     public MeterReadingController(MeterReadingService meterReadingService) {
         this.meterReadingService = meterReadingService;
     }
 
     @PostMapping("/store")
     public ResponseEntity storeReadings(@Valid @RequestBody MeterReadings meterReadings) {
+        logger.debug("inside Post API /readings/store/{}", () -> meterReadings);
         meterReadingService.storeReadings(meterReadings.getSmartMeterId(), meterReadings.getElectricityReadings());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/read/{smartMeterId}")
     public ResponseEntity readReadings(@PathVariable String smartMeterId) {
+        logger.debug("inside Get API /readings/read/{}", () -> smartMeterId);
         Optional<List<ElectricityReading>> readings = meterReadingService.getReadings(smartMeterId);
         return readings.isPresent()
                 ? ResponseEntity.ok(readings.get())
@@ -39,7 +45,7 @@ public class MeterReadingController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity handleValidationExceptions(MethodArgumentNotValidException ex) {
-        System.err.println("******** Exception");
+        logger.error("Exception occurred", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }

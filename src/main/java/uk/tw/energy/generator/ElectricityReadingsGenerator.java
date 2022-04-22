@@ -1,5 +1,8 @@
 package uk.tw.energy.generator;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import uk.tw.energy.SeedingApplicationDataConfiguration;
 import uk.tw.energy.domain.ElectricityReading;
 
 import java.math.BigDecimal;
@@ -12,7 +15,10 @@ import java.util.Random;
 
 public class ElectricityReadingsGenerator {
 
+    private static final Logger logger = LogManager.getLogger(ElectricityReadingsGenerator.class);
+
     public List<ElectricityReading> generate(int number) {
+        logger.debug("Inside ElectricityReadingsGenerator::generate({}) method..", number);
         List<ElectricityReading> readings = new ArrayList<>();
         Instant now = Instant.now();
 

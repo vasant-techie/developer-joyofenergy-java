@@ -1,5 +1,7 @@
 package uk.tw.energy.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,18 +28,23 @@ public class PricePlanComparatorController {
     private final PricePlanService pricePlanService;
     private final AccountService accountService;
 
+    private static final Logger logger = LogManager.getLogger(PricePlanComparatorController.class);
+
     public PricePlanComparatorController(PricePlanService pricePlanService, AccountService accountService) {
+        logger.debug("inside PricePlanComparatorController::Constructor");
         this.pricePlanService = pricePlanService;
         this.accountService = accountService;
     }
 
     @GetMapping("/compare-all/{smartMeterId}")
     public ResponseEntity<Map<String, Object>> calculatedCostForEachPricePlan(@PathVariable String smartMeterId) {
+        logger.debug("Inside Get API /price-plans/compare-all/{}", () -> smartMeterId);
         String pricePlanId = accountService.getPricePlanIdForSmartMeterId(smartMeterId);
         Optional<Map<String, BigDecimal>> consumptionsForPricePlans =
                 pricePlanService.getConsumptionCostOfElectricityReadingsForEachPricePlan(smartMeterId);
 
         if (!consumptionsForPricePlans.isPresent()) {
+            logger.error("Null Returned for getting Consumption Cost of Electricity Readings For Each Price Plan. Returning HTTP Status - NOT FOUND");
             return ResponseEntity.notFound().build();
         }
 
@@ -51,10 +58,12 @@ public class PricePlanComparatorController {
     @GetMapping("/recommend/{smartMeterId}")
     public ResponseEntity<List<Map.Entry<String, BigDecimal>>> recommendCheapestPricePlans(@PathVariable String smartMeterId,
                                                                                            @RequestParam(value = "limit", required = false) Integer limit) {
+        logger.debug("inside Get API /price-plans/recommend/{}?limit={}", () -> smartMeterId, () -> limit);
         Optional<Map<String, BigDecimal>> consumptionsForPricePlans =
                 pricePlanService.getConsumptionCostOfElectricityReadingsForEachPricePlan(smartMeterId);
 
         if (!consumptionsForPricePlans.isPresent()) {
+            logger.error("Null returned while Getting Consumption Cost of Electricity Readings for Each Price Plan. Returning HTTP Status - NOT FOUND");
             return ResponseEntity.notFound().build();
         }
 

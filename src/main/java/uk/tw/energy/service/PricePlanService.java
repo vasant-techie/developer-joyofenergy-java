@@ -1,6 +1,9 @@
 package uk.tw.energy.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import uk.tw.energy.controller.MeterReadingController;
 import uk.tw.energy.domain.ElectricityReading;
 import uk.tw.energy.domain.PricePlan;
 
@@ -19,12 +22,17 @@ public class PricePlanService {
     private final List<PricePlan> pricePlans;
     private final MeterReadingService meterReadingService;
 
+    private static final Logger logger = LogManager.getLogger(PricePlanService.class);
+
     public PricePlanService(List<PricePlan> pricePlans, MeterReadingService meterReadingService) {
+        logger.debug("inside PricePlanService::Constructor");
         this.pricePlans = pricePlans;
         this.meterReadingService = meterReadingService;
     }
 
     public Optional<Map<String, BigDecimal>> getConsumptionCostOfElectricityReadingsForEachPricePlan(String smartMeterId) {
+        logger.debug("inside PricePlanService::getConsumptionCostOfElectricityReadingsForEachPricePlan({}) method", smartMeterId);
+
         Optional<List<ElectricityReading>> electricityReadings = meterReadingService.getReadings(smartMeterId);
 
         if (!electricityReadings.isPresent()) {
@@ -36,6 +44,7 @@ public class PricePlanService {
     }
 
     private BigDecimal calculateCost(List<ElectricityReading> electricityReadings, PricePlan pricePlan) {
+        logger.debug("inside PricePlanService::calculateCost() method..");
         BigDecimal average = calculateAverageReading(electricityReadings);
         BigDecimal timeElapsed = calculateTimeElapsed(electricityReadings);
 
@@ -44,6 +53,8 @@ public class PricePlanService {
     }
 
     private BigDecimal calculateAverageReading(List<ElectricityReading> electricityReadings) {
+        logger.debug("inside PricePlanService::calculateAverageReading() method..");
+
         BigDecimal summedReadings = electricityReadings.stream()
                 .map(ElectricityReading::getReading)
                 .reduce(BigDecimal.ZERO, (reading, accumulator) -> reading.add(accumulator));
